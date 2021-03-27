@@ -13,9 +13,9 @@ var margin = {top: 20, right: 20, bottom: 70, left: 40},
 
 var parseDate = d3.timeParse("%d-%b").parse;
 
-var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+var x = d3.scaleOrdinal().rangeRoundBands([0, width], .05);
 
-var y = d3.scale.linear().range([height, 0]);
+var y = d3.scaleLinear().range([height, 0]);
 
 var xAxis = d3.svg.axis()
     .scale(x)
