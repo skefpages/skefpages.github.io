@@ -51,16 +51,8 @@ var svg2 = d3.select("body").append("svg")
 
 var theData;
 
-function drawChart(error, data, svg, f, color)
+function drawChart(data, svg, f, color)
 {
-  theData = data;
-
-  if (error) {
-    console.log(error);
-    alert(error);
-    return;
-  }
-
   data.forEach(function(d) {
       d.date = parseDate(d.Date);
       d.value = f(d);
@@ -107,8 +99,20 @@ testData =
    {"Date":"7-Feb","1st":"641611","2nd":"191896","J&J":"0"},
    {"Date":"8-Feb","1st":"659905","2nd":"199213","J&J":"0"}];
 
-drawChart(null, testData, svg1, function(d) { return parseInt(d["1st"]) + parseInt(d["2nd"]) + parseInt(d["J&J"])}, "darkBlue");
-drawChart(null, testData, svg2, function(d) { return parseInt(d["2nd"]) + parseInt(d["J&J"])}, "steelblue");
+theData = testData;
+
+d3.csv("vacc.csv", function(error, data) {
+  if (error) {
+    console.log(error);
+    alert(error);
+    return;
+  }
+
+  theData = data;
+});
+
+drawChart(theData, svg1, function(d) { return parseInt(d["1st"]) + parseInt(d["2nd"]) + parseInt(d["J&J"])}, "darkBlue");
+drawChart(theData, svg2, function(d) { return parseInt(d["2nd"]) + parseInt(d["J&J"])}, "steelblue");
 
 //d3.csv("vacc.csv", drawChart);
 </script>
