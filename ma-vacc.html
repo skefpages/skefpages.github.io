@@ -183,9 +183,13 @@ d3.csv("vacc.csv", function(error, data) {
   var avg7 = Math.floor(tot7 / 7);
 
   d3.select("body").append("p").text("Average daily fully vaccinated for last seven days: " + avg7);
-});
 
-// Calculate how many 
+  var dLast = theData[theData.length - 1];
+  var totalFv = parseInt(dLast["J&J"]) + parseInt(dLast["2nd"]);
+  var day1 = new Date();
+  day1.setDate(day1.getDate() + (4000000 - totalFv) / avg7);
+  d3.select("body").append("p").text("At that rate, date when MA reaches 4M fully vaccinated: " + day1.toLocaleDateString());
+});
 </script>
 </body>
 </html>
