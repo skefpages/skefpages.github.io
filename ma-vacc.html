@@ -2,16 +2,19 @@
 <html>
 <head>
 <link rel="stylesheet" href="styles.css">
+<title>MA Vaccinsations</title>
+</head>
+<body>
 <script src="https://d3js.org/d3.v3.js"></script>
 <script>
 //rows = {};
 //zz = d3.csv("vacc.csv").get( function(error, data) { console.log(error); rows = data;});
 
-var margin = {top: 20, right: 20, bottom: 70, left: 40},
+var margin = {top: 20, right: 20, bottom: 70, left: 60},
     width = 600 - margin.left - margin.right,
     height = 300 - margin.top - margin.bottom;
 
-var parseDate = d3.time,format("%d-%b").parse;
+var parseDate = d3.time.format("%d-%b").parse;
 
 var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
 
@@ -25,7 +28,8 @@ var xAxis = d3.svg.axis()
 var yAxis = d3.svg.axis()
     .scale(y)
     .orient("left")
-    .ticks(10);
+    .ticks(5)
+    .tickFormat(d3.format(",.0f"));
 
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -36,12 +40,13 @@ var svg = d3.select("body").append("svg")
 
 var theData;
 
-d3.csv("vacc.csv", function(error, data) {
+function drawChart(error, data) 
+{
   theData = data;
 
   data.forEach(function(d) {
-      d.date = parseDate(d.date);
-      d.value = d["1st"] + d["2nd"] + d["J&J"];
+      d.date = parseDate(d.Date);
+      d.value = parseInt(d["1st"]) + parseInt(d["2nd"]) + parseInt(d["J&J"]);
   });
 
   x.domain(data.map(function(d) { return d.date; }));
@@ -62,25 +67,31 @@ d3.csv("vacc.csv", function(error, data) {
       .call(yAxis)
     .append("text")
       .attr("transform", "rotate(-90)")
-      .attr("y", 6)
+      .attr("y", 8)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
-      .text("Value ($)");
+      .text("Doses");
 
   svg.selectAll("bar")
       .data(data)
     .enter().append("rect")
       .style("fill", "steelblue")
       .attr("x", function(d) { return x(d.date); })
-      .attr("width", 5)
+      .attr("width", x.rangeBand())
       .attr("y", function(d) { return y(d.value); })
       .attr("height", function(d) { return height - y(d.value); });
+}
 
-});
+testData =
+  [{"Date":"3-Feb","1st":"531393","2nd":"150079","J&J":"0"},
+   {"Date":"4-Feb","1st":"553584","2nd":"159827","J&J":"0"},
+   {"Date":"5-Feb","1st":"584934","2nd":"169940","J&J":"0"},
+   {"Date":"6-Feb","1st":"621225","2nd":"186320","J&J":"0"},
+   {"Date":"7-Feb","1st":"641611","2nd":"191896","J&J":"0"},
+   {"Date":"8-Feb","1st":"659905","2nd":"199213","J&J":"0"}];
+//drawChart(null, testData);
+
+d3.csv("vacc.csv", drawChart);
 </script>
-<title>MA Vaccinsations</title>
-</head>
-<body>
-<p></p>
 </body>
 </html>
