@@ -103,16 +103,16 @@ theData = testData;
 
 d3.csv("vacc.csv", function(error, data) {
   if (error) {
+    // csv load doesn't work from file:///; in that case just use test data.
     console.log(error);
-    alert(error);
-    return;
+  } else {
+    theData = data;
   }
 
-  theData = data;
+  drawChart(theData, svg1, function(d) { return parseInt(d["1st"]) + parseInt(d["2nd"]) + parseInt(d["J&J"])}, "darkBlue");
+  drawChart(theData, svg2, function(d) { return parseInt(d["2nd"]) + parseInt(d["J&J"])}, "steelblue");
 });
 
-drawChart(theData, svg1, function(d) { return parseInt(d["1st"]) + parseInt(d["2nd"]) + parseInt(d["J&J"])}, "darkBlue");
-drawChart(theData, svg2, function(d) { return parseInt(d["2nd"]) + parseInt(d["J&J"])}, "steelblue");
 
 //d3.csv("vacc.csv", drawChart);
 </script>
