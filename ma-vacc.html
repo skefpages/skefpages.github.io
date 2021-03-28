@@ -31,7 +31,7 @@ var yAxis = d3.svg.axis()
     .ticks(5)
     .tickFormat(d3.format(",.0f"));
 
-d3.select("body").append("h1").text("Total Doses");
+d3.select("body").append("h1").text("Total Doses Administered");
 
 var svg1 = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -40,7 +40,7 @@ var svg1 = d3.select("body").append("svg")
     .attr("transform", 
           "translate(" + margin.left + "," + margin.top + ")");
 
-d3.select("body").append("h1").text("Final Doses");
+d3.select("body").append("h1").text("Daily Fully Vaccinated");
 
 var svg2 = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -51,15 +51,21 @@ var svg2 = d3.select("body").append("svg")
 
 var theData;
 
-function drawChart(data, svg, f, color)
+barColors = ["DarkBlue", "Blue", "CadetBlue"];
+
+function drawChart1(data, svg)
 {
   data.forEach(function(d) {
       d.date = parseDate(d.Date);
-      d.value = f(d);
+      var jnj = parseInt(d["J&J"]);
+      var dose2 = parseInt(d["2nd"]);
+      var dose1 = parseInt(d["1st"]);
+      d.values = [0, jnj, jnj + dose2, jnj + dose2 + dose1];
   });
 
   x.domain(data.map(function(d) { return d.date; }));
-  y.domain([0, d3.max(data, function(d) { return d.value; })]);
+  var maxY = d3.max(data, function(d) { return d.values[1] + d.values[2] + d.values[3]; });
+  y.domain([0, maxY]);
 
   svg.append("g")
       .attr("class", "x axis")
@@ -81,23 +87,81 @@ function drawChart(data, svg, f, color)
       .style("text-anchor", "end")
       .text("Doses");
 
+  for (var i = 0; i < 3; i++) {
+    svg.selectAll("bar")
+	.data(data)
+      .enter().append("rect")
+	.style("fill", barColors[i])
+	.attr("x", function(d) { return x(d.date); })
+	.attr("width", x.rangeBand())
+	.attr("y", function(d) { return y(d.values[i + 1]); })
+	.attr("height", function(d) { return ((d.values[i] > 0) ? y(d.values[i]) : height) - y(d.values[i + 1]); });
+  }
+}
+
+var theDailies;
+
+function drawChart2(data, svg)
+{
+  var dailies = [];
+
+  for (var i = 1; i < data.length; i++) {
+    var d0 = data[i - 1];
+    var d1 = data[i];
+    dailies.push({ date : parseDate(d1.Date), fv : parseInt(d1["J&J"]) + parseInt(d1["2nd"]) - (parseInt(d0["J&J"]) + parseInt(d0["2nd"])) });
+  }
+
+  theDailies = dailies;
+
+  x.domain(data.map(function(d) { return d.date; }));
+  y.domain([0, d3.max(dailies, function(d) { return d.fv; })]);
+
+  svg.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(xAxis)
+    .selectAll("text")
+      .style("text-anchor", "end")
+      .attr("dx", "-.8em")
+      .attr("dy", "-.55em")
+      .attr("transform", "rotate(-90)" );
+
+  svg.append("g")
+      .attr("class", "y axis")
+      .call(yAxis)
+    .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 8)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+      .text("Second Dose or J&J Dose");
+
   svg.selectAll("bar")
-      .data(data)
+      .data(dailies)
     .enter().append("rect")
-      .style("fill", color)
+      .style("fill", "DarkCyan")
       .attr("x", function(d) { return x(d.date); })
       .attr("width", x.rangeBand())
-      .attr("y", function(d) { return y(d.value); })
-      .attr("height", function(d) { return height - y(d.value); });
+      .attr("y", function(d) { return y(d.fv); })
+      .attr("height", function(d) { return height - y(d.fv); });
 }
 
 testData =
-  [{"Date":"3-Feb","1st":"531393","2nd":"150079","J&J":"0"},
-   {"Date":"4-Feb","1st":"553584","2nd":"159827","J&J":"0"},
-   {"Date":"5-Feb","1st":"584934","2nd":"169940","J&J":"0"},
-   {"Date":"6-Feb","1st":"621225","2nd":"186320","J&J":"0"},
-   {"Date":"7-Feb","1st":"641611","2nd":"191896","J&J":"0"},
-   {"Date":"8-Feb","1st":"659905","2nd":"199213","J&J":"0"}];
+  [{"Date":"10-Mar","1st":"1504144","2nd":"752083","J&J":"32706"},
+   {"Date":"11-Mar","1st":"1533849","2nd":"776524","J&J":"43025"},
+   {"Date":"12-Mar","1st":"1563347","2nd":"803231","J&J":"50202"},
+   {"Date":"13-Mar","1st":"1587325","2nd":"825157","J&J":"53910"},
+   {"Date":"14-Mar","1st":"1614294","2nd":"848237","J&J":"60316"},
+   {"Date":"15-Mar","1st":"1620368","2nd":"853934","J&J":"60993"},
+   {"Date":"16-Mar","1st":"1664173","2nd":"883407","J&J":"62899"},
+   {"Date":"17-Mar","1st":"1699825","2nd":"906783","J&J":"65320"},
+   {"Date":"18-Mar","1st":"1737411","2nd":"929577","J&J":"67472"},
+   {"Date":"19-Mar","1st":"1780967","2nd":"955134","J&J":"68834"},
+   {"Date":"20-Mar","1st":"1818293","2nd":"974951","J&J":"70216"},
+   {"Date":"21-Mar","1st":"1849997","2nd":"997220","J&J":"72548"},
+   {"Date":"22-Mar","1st":"1866948","2nd":"1012342","J&J":"73057"},
+   {"Date":"23-Mar","1st":"1905957","2nd":"1035741","J&J":"74888"},
+   {"Date":"24-Mar","1st":"1942416","2nd":"1060252","J&J":"76481"}];
 
 theData = testData;
 
@@ -109,12 +173,19 @@ d3.csv("vacc.csv", function(error, data) {
     theData = data;
   }
 
-  drawChart(theData, svg1, function(d) { return parseInt(d["1st"]) + parseInt(d["2nd"]) + parseInt(d["J&J"])}, "darkBlue");
-  drawChart(theData, svg2, function(d) { return parseInt(d["2nd"]) + parseInt(d["J&J"])}, "steelblue");
+  drawChart1(theData, svg1);
+  drawChart2(theData, svg2);
+
+  var tot7 = 0;
+  for (var i = 0; i < 7; i++) {
+    tot7 += theDailies[theDailies.length - 1 - i].fv;
+  }
+  var avg7 = Math.floor(tot7 / 7);
+
+  d3.select("body").append("p").text("Average daily fully vaccinated for last seven days: " + avg7);
 });
 
-
-//d3.csv("vacc.csv", drawChart);
+// Calculate how many 
 </script>
 </body>
 </html>
