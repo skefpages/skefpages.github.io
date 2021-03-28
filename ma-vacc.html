@@ -31,7 +31,18 @@ var yAxis = d3.svg.axis()
     .ticks(5)
     .tickFormat(d3.format(",.0f"));
 
-var svg = d3.select("body").append("svg")
+d3.select("body").append("h1").text("Total Doses");
+
+var svg1 = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", 
+          "translate(" + margin.left + "," + margin.top + ")");
+
+d3.select("body").append("h1").text("Final Doses");
+
+var svg2 = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
@@ -40,13 +51,19 @@ var svg = d3.select("body").append("svg")
 
 var theData;
 
-function drawChart(error, data) 
+function drawChart(error, data, svg, f, color)
 {
   theData = data;
 
+  if (error) {
+    console.log(error);
+    alert(error);
+    return;
+  }
+
   data.forEach(function(d) {
       d.date = parseDate(d.Date);
-      d.value = parseInt(d["1st"]) + parseInt(d["2nd"]) + parseInt(d["J&J"]);
+      d.value = f(d);
   });
 
   x.domain(data.map(function(d) { return d.date; }));
@@ -75,7 +92,7 @@ function drawChart(error, data)
   svg.selectAll("bar")
       .data(data)
     .enter().append("rect")
-      .style("fill", "steelblue")
+      .style("fill", color)
       .attr("x", function(d) { return x(d.date); })
       .attr("width", x.rangeBand())
       .attr("y", function(d) { return y(d.value); })
@@ -89,9 +106,11 @@ testData =
    {"Date":"6-Feb","1st":"621225","2nd":"186320","J&J":"0"},
    {"Date":"7-Feb","1st":"641611","2nd":"191896","J&J":"0"},
    {"Date":"8-Feb","1st":"659905","2nd":"199213","J&J":"0"}];
-//drawChart(null, testData);
 
-d3.csv("vacc.csv", drawChart);
+drawChart(null, testData, svg1, function(d) { return parseInt(d["1st"]) + parseInt(d["2nd"]) + parseInt(d["J&J"])}, "darkBlue");
+drawChart(null, testData, svg2, function(d) { return parseInt(d["2nd"]) + parseInt(d["J&J"])}, "steelblue");
+
+//d3.csv("vacc.csv", drawChart);
 </script>
 </body>
 </html>
