@@ -7,17 +7,13 @@
 <body>
 <script src="https://d3js.org/d3.v3.js"></script>
 <script>
-//rows = {};
-//zz = d3.csv("vacc.csv").get( function(error, data) { console.log(error); rows = data;});
-
 var margin = {top: 20, right: 20, bottom: 70, left: 60},
     width = 800 - margin.left - margin.right,
     height = 350 - margin.top - margin.bottom;
 
-var parseDate = d3.time.format("%d-%b").parse;
+var parseDate = d3.time.format("%d-%b-%Y").parse;
 
 var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
-
 var y = d3.scale.linear().range([height, 0]);
 
 var xAxis = d3.svg.axis()
@@ -56,7 +52,7 @@ barColors = ["DarkBlue", "Blue", "CadetBlue"];
 function drawChart1(data, svg)
 {
   data.forEach(function(d) {
-      d.date = parseDate(d.Date);
+      d.date = parseDate(d.Date + "-2021");
       var jnj = parseInt(d["J&J"]);
       var dose2 = parseInt(d["2nd"]);
       var dose1 = parseInt(d["1st"]);
@@ -64,8 +60,7 @@ function drawChart1(data, svg)
   });
 
   x.domain(data.map(function(d) { return d.date; }));
-  var maxY = d3.max(data, function(d) { return d.values[1] + d.values[2] + d.values[3]; });
-  y.domain([0, maxY]);
+  y.domain([0, d3.max(data, function(d) { return d.values[3]; })]);
 
   svg.append("g")
       .attr("class", "x axis")
@@ -108,7 +103,7 @@ function drawChart2(data, svg)
   for (var i = 1; i < data.length; i++) {
     var d0 = data[i - 1];
     var d1 = data[i];
-    dailies.push({ date : parseDate(d1.Date), fv : parseInt(d1["J&J"]) + parseInt(d1["2nd"]) - (parseInt(d0["J&J"]) + parseInt(d0["2nd"])) });
+    dailies.push({ date : parseDate(d1.Date + "-2021"), fv : parseInt(d1["J&J"]) + parseInt(d1["2nd"]) - (parseInt(d0["J&J"]) + parseInt(d0["2nd"])) });
   }
 
   theDailies = dailies;
@@ -186,7 +181,7 @@ d3.csv("vacc.csv", function(error, data) {
 
   var dLast = theData[theData.length - 1];
   var totalFv = parseInt(dLast["J&J"]) + parseInt(dLast["2nd"]);
-  var day1 = new Date();
+  var day1 = dLast.date;
   day1.setDate(day1.getDate() + (4000000 - totalFv) / avg7);
   d3.select("body").append("p").text("At this rate, MA will reach the goal of 4M fully vaccinated people on " + day1.toLocaleDateString() + ".");
 });
