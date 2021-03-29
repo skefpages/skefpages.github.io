@@ -2,14 +2,15 @@
 <html>
 <head>
 <link rel="stylesheet" href="styles.css">
+<meta name="keywords" content="COVID, COVID-19, Massachusetts, vaccination, shots, doses, data, d3">
 <title>MA Vaccinsations</title>
 </head>
 <body>
 <script src="https://d3js.org/d3.v3.js"></script>
 <script>
-var margin = {top: 20, right: 20, bottom: 70, left: 60},
+var margin = {top: 10, right: 20, bottom: 40, left: 60},
     width = 800 - margin.left - margin.right,
-    height = 350 - margin.top - margin.bottom;
+    height = 330 - margin.top - margin.bottom;
 
 var parseDate = d3.time.format("%d-%b-%Y").parse;
 
@@ -27,7 +28,7 @@ var yAxis = d3.svg.axis()
     .ticks(5)
     .tickFormat(d3.format(",.0f"));
 
-d3.select("body").append("h1").text("Total Doses Administered");
+d3.select("body").append("h1").text("Total Doses Administered in Massachusetts");
 
 var svg1 = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -36,7 +37,7 @@ var svg1 = d3.select("body").append("svg")
     .attr("transform", 
           "translate(" + margin.left + "," + margin.top + ")");
 
-d3.select("body").append("h1").text("Daily Fully Vaccinated");
+d3.select("body").append("h1").text("Fully Vaccinated Each Day in Massachusetts");
 
 var svg2 = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -183,7 +184,10 @@ d3.csv("vacc.csv", function(error, data) {
   var totalFv = parseInt(dLast["J&J"]) + parseInt(dLast["2nd"]);
   var day1 = dLast.date;
   day1.setDate(day1.getDate() + (4000000 - totalFv) / avg7);
+
   d3.select("body").append("p").text("At this rate, MA will reach the goal of 4M fully vaccinated people on " + day1.toLocaleDateString() + ".");
+
+  d3.select("body").append("p").html("<i>Source: <a href=\"https://www.mass.gov/info-details/massachusetts-covid-19-vaccination-data-and-updates#daily-covid-19-vaccine-report-\">Massachusetts COVID-19 vaccination data</a>.</i>");
 });
 </script>
 </body>
