@@ -11,8 +11,8 @@
 //zz = d3.csv("vacc.csv").get( function(error, data) { console.log(error); rows = data;});
 
 var margin = {top: 20, right: 20, bottom: 70, left: 60},
-    width = 600 - margin.left - margin.right,
-    height = 300 - margin.top - margin.bottom;
+    width = 800 - margin.left - margin.right,
+    height = 350 - margin.top - margin.bottom;
 
 var parseDate = d3.time.format("%d-%b").parse;
 
@@ -134,7 +134,7 @@ function drawChart2(data, svg)
       .attr("y", 8)
       .attr("dy", ".71em")
       .style("text-anchor", "end")
-      .text("Second Dose or J&J Dose");
+      .text("Second Ph/Mo Dose or Single J&J Dose");
 
   svg.selectAll("bar")
       .data(dailies)
@@ -182,13 +182,13 @@ d3.csv("vacc.csv", function(error, data) {
   }
   var avg7 = Math.floor(tot7 / 7);
 
-  d3.select("body").append("p").text("Average daily fully vaccinated for last seven days: " + avg7);
+  d3.select("body").append("p").text("Over the last week, an average of " + avg7 + " people were fully vaccinated each day.");
 
   var dLast = theData[theData.length - 1];
   var totalFv = parseInt(dLast["J&J"]) + parseInt(dLast["2nd"]);
   var day1 = new Date();
   day1.setDate(day1.getDate() + (4000000 - totalFv) / avg7);
-  d3.select("body").append("p").text("At that rate, date when MA reaches 4M fully vaccinated: " + day1.toLocaleDateString());
+  d3.select("body").append("p").text("At this rate, MA will reach the goal of 4M fully vaccinated people on " + day1.toLocaleDateString() + ".");
 });
 </script>
 </body>
