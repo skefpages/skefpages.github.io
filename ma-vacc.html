@@ -19,19 +19,9 @@ var margin = {top: 10, right: 20, bottom: 40, left: 60},
 
 var parseDate = d3.time.format("%d-%b-%Y").parse;
 
-var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
-var y = d3.scale.linear().range([height, 0]);
-
-var xAxis = d3.svg.axis()
-    .scale(x)
-    .orient("bottom")
-    .tickFormat(d3.time.format("%d-%b"));
-
-var yAxis = d3.svg.axis()
-    .scale(y)
-    .orient("left")
-    .ticks(5)
-    .tickFormat(d3.format(",.0f"));
+var tipDiv = d3.select("body").append("div")  
+    .attr("class", "tooltip")                                   
+    .style("opacity", 0);
 
 d3.select("body").append("h1").text("Total Doses Administered in Massachusetts");
 
@@ -53,10 +43,26 @@ var svg2 = d3.select("body").append("svg")
 
 var theData;
 
-barColors = ["DarkBlue", "Blue", "CadetBlue"];
+var barColors = ["DarkBlue", "Blue", "CadetBlue"];
+
+var commafy = d3.format(",.0f");
 
 function drawChart1(data, svg)
 {
+  var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+  var y = d3.scale.linear().range([height, 0]);
+
+  var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient("bottom")
+      .tickFormat(d3.time.format("%d-%b"));
+
+  var yAxis = d3.svg.axis()
+      .scale(y)
+      .orient("left")
+      .ticks(5)
+      .tickFormat(commafy);
+
   data.forEach(function(d) {
       d.date = parseDate(d.Date + "-2021");
       var jnj = parseInt(d["J&J"]);
@@ -90,13 +96,39 @@ function drawChart1(data, svg)
 
   for (var i = 0; i < 3; i++) {
     svg.selectAll("bar")
-	.data(data)
+        .data(data)
       .enter().append("rect")
-	.style("fill", barColors[i])
-	.attr("x", function(d) { return x(d.date); })
-	.attr("width", x.rangeBand())
-	.attr("y", function(d) { return y(d.values[i + 1]); })
-	.attr("height", function(d) { return ((d.values[i] > 0) ? y(d.values[i]) : height) - y(d.values[i + 1]); });
+        .style("fill", barColors[i])
+        .attr("x", function(d) { return x(d.date); })
+        .attr("width", x.rangeBand())
+        .attr("y", function(d) { return y(d.values[i + 1]); })
+        .attr("height", function(d) { return ((d.values[i] > 0) ? y(d.values[i]) : height) - y(d.values[i + 1]); })
+        .on("mouseover", function(d) {
+            var mouseY = d3.mouse(svg.node())[1];
+            var section = -1;
+            for (var ii = 0; ii < 3; ii++) if ((mouseY <= y(d.values[ii])) && (mouseY >= y(d.values[ii + 1]))) section = ii;
+            if (section >= 0) {
+	      var s = d.Date + "<br>";
+   	      if (section === 0) {
+	        s += commafy(d["J&J"]) + " J&J";
+              } else if (section === 1) {
+	        s += commafy(d["2nd"]) + " 2nd Ph/Mo";
+              } else {
+	        s += commafy(d["1st"]) + " 1st Ph/Mo";
+              }
+              tipDiv.html(s)
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+              tipDiv.transition()
+                .duration(200)
+                .style("opacity", .9);
+            }
+            })
+        .on("mouseout", function(d) {
+            tipDiv.transition()
+              .duration(500)
+              .style("opacity", 0);
+            });
   }
 }
 
@@ -104,12 +136,28 @@ var theDailies;
 
 function drawChart2(data, svg)
 {
+  var x = d3.scale.ordinal().rangeRoundBands([0, width], .05);
+  var y = d3.scale.linear().range([height, 0]);
+
+  var xAxis = d3.svg.axis()
+      .scale(x)
+      .orient("bottom")
+      .tickFormat(d3.time.format("%d-%b"));
+
+  var yAxis = d3.svg.axis()
+      .scale(y)
+      .orient("left")
+      .ticks(5)
+      .tickFormat(commafy);
+
   var dailies = [];
 
   for (var i = 1; i < data.length; i++) {
     var d0 = data[i - 1];
     var d1 = data[i];
-    dailies.push({ date : parseDate(d1.Date + "-2021"), fv : parseInt(d1["J&J"]) + parseInt(d1["2nd"]) - (parseInt(d0["J&J"]) + parseInt(d0["2nd"])) });
+    dailies.push({ Date : d1.Date,
+                   date : parseDate(d1.Date + "-2021"),
+		   fv : parseInt(d1["J&J"]) + parseInt(d1["2nd"]) - (parseInt(d0["J&J"]) + parseInt(d0["2nd"])) });
   }
 
   theDailies = dailies;
@@ -144,8 +192,22 @@ function drawChart2(data, svg)
       .attr("x", function(d) { return x(d.date); })
       .attr("width", x.rangeBand())
       .attr("y", function(d) { return y(d.fv); })
-      .attr("height", function(d) { return height - y(d.fv); });
-}
+      .attr("height", function(d) { return height - y(d.fv); })
+      .on("mouseover", function(d) {
+	  var s = d.Date + "<br>";
+	  s += commafy(d.fv);
+	  tipDiv.html(s)
+	    .style("left", (d3.event.pageX) + "px")
+	    .style("top", (d3.event.pageY - 28) + "px");
+	  tipDiv.transition()
+	    .duration(200)
+	    .style("opacity", .9);
+	  })
+      .on("mouseout", function(d) {
+	  tipDiv.transition()
+	    .duration(500)
+	    .style("opacity", 0);
+	  });}
 
 testData =
   [{"Date":"10-Mar","1st":"1504144","2nd":"752083","J&J":"32706"},
