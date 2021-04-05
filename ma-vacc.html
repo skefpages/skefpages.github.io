@@ -245,7 +245,7 @@ d3.csv("vacc.csv", function(error, data) {
   }
   var avg7 = Math.floor(tot7 / 7);
 
-  d3.select("body").append("p").text("Over the last week, an average of " + avg7 + " people were fully vaccinated each day.");
+  d3.select("body").append("p").text("Over the last week, an average of " + commafy(avg7) + " people were fully vaccinated each day.");
 
   var dLast = theData[theData.length - 1];
   var totalFv = parseInt(dLast["J&J"]) + parseInt(dLast["2nd"]);
