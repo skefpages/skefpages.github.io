@@ -106,7 +106,7 @@ function drawChart1(data, svg)
         .on("mouseover", function(d) {
             var mouseY = d3.mouse(svg.node())[1];
             var section = -1;
-            for (var ii = 0; ii < 3; ii++) if ((mouseY <= y(d.values[ii])) && (mouseY >= y(d.values[ii + 1]))) section = ii;
+            for (var ii = 0; ii < 3; ii++) if ((mouseY < y(d.values[ii])) && (mouseY >= y(d.values[ii + 1]))) section = ii;
             if (section >= 0) {
 	      var s = d.Date + "<br>";
    	      if (section === 0) {
