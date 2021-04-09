@@ -32,7 +32,7 @@ var svg1 = d3.select("body").append("svg")
     .attr("transform", 
           "translate(" + margin.left + "," + margin.top + ")");
 
-d3.select("body").append("h1").text("Fully Vaccinated Each Day in Massachusetts");
+d3.select("body").append("h1").text("Final Dose Each Day in Massachusetts");
 
 var svg2 = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -245,7 +245,7 @@ d3.csv("vacc.csv", function(error, data) {
   }
   var avg7 = Math.floor(tot7 / 7);
 
-  d3.select("body").append("p").text("Over the last week, an average of " + commafy(avg7) + " people were fully vaccinated each day.");
+  d3.select("body").append("p").text("Over the last week, an average of " + commafy(avg7) + " people received their final dose each day.");
 
   var dLast = theData[theData.length - 1];
   var totalFv = parseInt(dLast["J&J"]) + parseInt(dLast["2nd"]);
