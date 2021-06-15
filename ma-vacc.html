@@ -251,7 +251,7 @@ d3.csv("vacc.csv", function(error, data) {
   var totalFv = parseInt(dLast["J&J"]) + parseInt(dLast["2nd"]);
 
   if (totalFv >= 4000000) {
-    d3.select("body").append("p").text("MA has reached the goal of 4M fully vaccinated people; " + totalFv + " are now fully vaccinated.");
+    d3.select("body").append("p").text("MA has reached the goal of 4M fully vaccinated people; " + commafy(totalFv) + " are now fully vaccinated.");
   } else {
     var day1 = dLast.date;
     day1.setDate(day1.getDate() + (4000000 - totalFv) / avg7);
